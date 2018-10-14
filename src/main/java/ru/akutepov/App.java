@@ -22,10 +22,17 @@ public class App
      * @return обработанное изображение {@link BufferedImage}
      */
     public static BufferedImage handle(BufferedImage colorImage, int width, int height) {
-        Image resizedImage = colorImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        BufferedImage resultImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        resultImage.getGraphics().drawImage(resizedImage, 0, 0 , null);
-        return resultImage;
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("width and height must be greater than 0");
+        }
+        if (colorImage != null) {
+            Image resizedImage = colorImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            BufferedImage resultImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+            resultImage.getGraphics().drawImage(resizedImage, 0, 0, null);
+            return resultImage;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -54,6 +61,10 @@ public class App
                 System.out.println("Invalid width or height: " + e.getMessage());
                 return;
             }
+            if (width <= 0 || height <= 0) {
+                System.out.println("width and height must be greater than 0");
+                return;
+            }
 
             // Чтение изображения
             final BufferedImage colorImage;
@@ -67,15 +78,19 @@ public class App
             // Обработка изображения
             BufferedImage resultImage = handle(colorImage, width, height);
 
-            // Сохранение обработанного изображения
-            File out = new File(FilenameUtils.getName(imageUrl.getPath()));
-            try {
-                ImageIO.write(resultImage, FilenameUtils.getExtension(imageUrl.getPath()), out);
-            } catch (IOException e) {
-                System.out.println("Image saving error: " + e.getMessage());
-                return;
+            if (resultImage != null) {
+                // Сохранение обработанного изображения
+                File out = new File(FilenameUtils.getName(imageUrl.getPath()));
+                try {
+                    ImageIO.write(resultImage, FilenameUtils.getExtension(imageUrl.getPath()), out);
+                } catch (IOException e) {
+                    System.out.println("Image saving error: " + e.getMessage());
+                    return;
+                }
+                System.out.println("Image successfully processed. Location: " + out.getAbsolutePath());
+            } else {
+                System.out.println("Image handle error. Result is null");
             }
-            System.out.println("Image successfully processed. Location: " + out.getAbsolutePath());
         } else {
             System.out.println("There is should be 3 arguments: image url, width and height");
         }
